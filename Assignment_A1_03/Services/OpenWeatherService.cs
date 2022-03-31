@@ -14,48 +14,110 @@ namespace Assignment_A1_03.Services
 {
     public class OpenWeatherService
     {
+
         HttpClient httpClient = new HttpClient();
-        readonly string apiKey = ""; // Your API Key
+        readonly string apiKey = "7616850dd80ab0c5df57eb53e6668a2d"; // Your API Key
 
         // part of your event and cache code here
+        ConcurrentDictionary<(string, string), Forecast> _Cache1 = new ConcurrentDictionary<(string, string), Forecast>();
+        ConcurrentDictionary<(string, double, double), Forecast> _Cache2 = new ConcurrentDictionary<(string, double, double), Forecast>();
+        
+        public EventHandler<string> WeatherForecastAvailable;
 
-       public async Task<Forecast> GetForecastAsync(string City)
+        public async Task<Forecast> GetForecastAsync(string City)
         {
             //part of cache code here
 
-            //https://openweathermap.org/current
-            var language = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-            var uri = $"https://api.openweathermap.org/data/2.5/forecast?q={City}&units=metric&lang={language}&appid={apiKey}";
+            Forecast forecast = null;
 
-            Forecast forecast = await ReadWebApiAsync(uri);
 
-            //part of event and cache code here
-            //generate an event with different message if cached data
+            string date = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            string city = City;
+            var key = (date, city);
+
+            if (!_Cache1.TryGetValue(key, out forecast))
+            {
+                //https://openweathermap.org/current
+                var language = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+                var uri = $"https://api.openweathermap.org/data/2.5/forecast?q={City}&units=metric&lang={language}&appid={apiKey}";
+
+                forecast = await ReadWebApiAsync(uri);
+                _Cache1[key] = forecast;
+                OnWeatherForecastAvailable($"New weather forecast for {City} available");
+            }
+            else
+                OnWeatherForecastAvailable($"Cached weather forecast for {City} available");
 
             return forecast;
 
         }
+
+        protected virtual void OnWeatherForecastAvailable(string s)
+        {
+            WeatherForecastAvailable?.Invoke(this, s);
+        }
         public async Task<Forecast> GetForecastAsync(double latitude, double longitude)
         {
             //part of cache code here
+            Forecast forecast = null;
+            var lon = longitude;
+            var lat = latitude;
+            var date = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
 
-            //https://openweathermap.org/current
-            var language = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-            var uri = $"https://api.openweathermap.org/data/2.5/forecast?lat={latitude}&lon={longitude}&units=metric&lang={language}&appid={apiKey}";
+            var key = (date, lon, lat);
+            if (!_Cache2.TryGetValue(key, out forecast))
+            {
 
-            Forecast forecast = await ReadWebApiAsync(uri);
- 
-            //part of event and cache code here
-            //generate an event with different message if cached data
+                //https://openweathermap.org/current
+                var language = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+                var uri = $"https://api.openweathermap.org/data/2.5/forecast?lat={latitude}&lon={longitude}&units=metric&lang={language}&appid={apiKey}";
+                forecast = await ReadWebApiAsync(uri);
+                _Cache2[key] = forecast;
+                OnWeatherForecastAvailable($"New weather forecast for {longitude}{latitude}");
+
+                //part of event and cache code here
+                //generate an event with different message if cached data
+
+            }
+            else
+            {
+                OnWeatherForecastAvailable($"Cached weather forecast for ({longitude} {latitude}) available");
+            }
+
 
             return forecast;
+        }
+
+        private ForecastItem GetForecastItem(List wdListItem)
+        {
+
+            ForecastItem item = new ForecastItem();
+            item.DateTime = UnixTimeStampToDateTime(wdListItem.dt);
+
+            item.Temperature = wdListItem.main.temp;
+            item.Description = wdListItem.weather.Count > 0 ? wdListItem.weather.First().description : "No info";
+            item.WindSpeed = wdListItem.wind.speed;
+
+            return item;
         }
         private async Task<Forecast> ReadWebApiAsync(string uri)
         {
             // part of your read web api code here
 
-            // part of your data transformation to Forecast here
-            //generate an event with different message if cached data
+            HttpResponseMessage response = await httpClient.GetAsync(uri);
+            response.EnsureSuccessStatusCode();
+            WeatherApiData wd = await response.Content.ReadFromJsonAsync<WeatherApiData>();
+
+            //Your Code to convert WeatherApiData to Forecast using Linq.
+            Forecast forecast = new Forecast();
+
+            forecast.City = wd.city.name;
+
+
+            forecast.Items = new List<ForecastItem>();
+
+            wd.list.ForEach(wdListItem => { forecast.Items.Add(GetForecastItem(wdListItem)); });
+
 
             return forecast;
         }

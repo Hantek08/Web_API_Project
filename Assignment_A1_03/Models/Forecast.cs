@@ -1,4 +1,5 @@
 ﻿using System;
+
 using System.Collections.Generic;
 
 namespace Assignment_A1_03.Models
@@ -7,5 +8,6 @@ namespace Assignment_A1_03.Models
     {
         public string City { get; set; }
         public List<ForecastItem> Items { get; set; }
+        
     }
 }

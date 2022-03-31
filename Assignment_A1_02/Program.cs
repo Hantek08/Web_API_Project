@@ -32,7 +32,7 @@ namespace Assignment_A1_02
                 t1 = service.GetForecastAsync(latitude, longitude);
                 t2 = service.GetForecastAsync("Miami");
 
-                Task.WaitAll(t1, t2);
+                Task.WaitAll(t1,t2);
             }
             catch (Exception ex)
             {
