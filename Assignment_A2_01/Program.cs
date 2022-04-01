@@ -18,8 +18,8 @@ namespace Assignment_A2_01
             {
                 NewsApiData newsApiData = t1.Result;
                 Console.WriteLine($"Top Headline:");
-                //var TopHeadLineList = newsApiData.Articles.Select(a => a.Title).ToList();
-                newsApiData.Articles.ForEach(a => Console.WriteLine(a.Title));
+               
+                newsApiData.Articles.ForEach(a => Console.WriteLine(a.PublishedAt.ToString("yyyy-MM-dd-hh-mm-ss") + a.Title));
                
             }    
             else

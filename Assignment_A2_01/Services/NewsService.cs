@@ -40,21 +40,10 @@ namespace Assignment_A2_01.Services
             
             nd.Articles.ForEach(a => news.Articles.Add(a));
 
+
             return nd;
         }
 
-        private Article GetArticleItem(Article ndListItem)
-        {
-            Article article = new Article();
-            article.Source = ndListItem.Source;
-            article.Author = ndListItem.Author;
-            article.Title = ndListItem.Title;
-            article.Description = ndListItem.Description;
-            article.PublishedAt = ndListItem.PublishedAt;
-            article.Content = ndListItem.Content; 
-            
-           return article;
-        }
 
 
 
