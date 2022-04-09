@@ -19,7 +19,7 @@ namespace Assignment_A2_04.Models
         public string Key => category.ToString() + timewindow;
         public bool CacheExist => File.Exists(FileName);
 
-        public NewsCacheKey (NewsCategory category, DateTime dt)
+        public NewsCacheKey (NewsCategory category)
         {
             this.category = category;
             timewindow = DateTime.Now.ToString("yyyy-MM-dd-HH-mm");
@@ -27,7 +27,7 @@ namespace Assignment_A2_04.Models
         static string fname(string name)
         {
             var documentPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            documentPath = Path.Combine(documentPath, "AOOP2", "Examples", "CodeExercise cache");
+            documentPath = Path.Combine(documentPath, "Assigment01_04", "Examples", "CodeExercise cache");
             if (!Directory.Exists(documentPath)) Directory.CreateDirectory(documentPath);
             return Path.Combine(documentPath, name);
         }
