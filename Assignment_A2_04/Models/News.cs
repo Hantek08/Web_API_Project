@@ -27,7 +27,7 @@ namespace Assignment_A2_04.Models
         static string fname(string name)
         {
             var documentPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            documentPath = Path.Combine(documentPath, "Assigment01_04", "Examples", "CodeExercise cache");
+            documentPath = Path.Combine(documentPath, "Assignment_A2_04", "Examples", "CodeExercise cache");
             if (!Directory.Exists(documentPath)) Directory.CreateDirectory(documentPath);
             return Path.Combine(documentPath, name);
         }
